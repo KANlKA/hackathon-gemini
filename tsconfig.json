@@ -29,17 +29,6 @@
     }
   },
   "include": [
-<<<<<<< HEAD
-  "next-env.d.ts",
-  "**/*.ts",
-  "**/*.tsx",
-  "**/*.d.ts",
-  ".next/types/**/*.ts"
-] ,
-
-  "exclude": ["node_modules"]
-}
-=======
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
@@ -51,4 +40,3 @@
     "node_modules"
   ]
 }
->>>>>>> origin/api-and-auth
