@@ -2,7 +2,7 @@ import connectDB from "@/lib/db/mongodb";
 import User from "@/models/User";
 import { generateCreatorInsights } from "@/lib/ai/insights-generator";
 import { generateVideoIdeas } from "@/lib/ai/idea-generator";
-import { addEmailJob } from "./queue";
+import { addEmailJob } from "../jobs/queue";
 
 export async function processWeeklyInsights(userId: string) {
   try {
