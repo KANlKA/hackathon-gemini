@@ -83,11 +83,21 @@ Generate 5 video ideas that:
 For each idea, provide:
 - rank: 1-5
 - title: Compelling video title
-- reasoning: Why it will work (commentDemand, pastPerformance, audienceFit, trendingScore 0-1)
-- evidence: Array of {type: "comment"|"performance"|"trend", text: string}
+- reasoning: {
+    commentDemand: string (why audience wants this),
+    pastPerformance: string (what data supports this),
+    audienceFit: string (how it matches their profile),
+    trendingScore: number 0-1
+  }
+- evidence: Array of evidence items. Each item must have:
+  * type: MUST be ONLY one of these exact values: "comment", "performance", or "trend"
+  * text: string (supporting evidence text)
 - predictedEngagement: 0-1 (decimal)
 - confidence: 0-1 (decimal)
 - suggestedStructure: {hook: string, format: string, length: string, tone: string}
+
+CRITICAL: For evidence.type, use ONLY these exact strings: "comment", "performance", "trend"
+Do NOT use "audienceFit" or any other value for evidence.type.
 
 Return as JSON array with 5 ideas.`;
 
@@ -99,6 +109,25 @@ Return as JSON array with 5 ideas.`;
       throw new Error("Invalid ideas generated");
     }
 
+    // Clean up evidence types - remove any invalid types
+    const validEvidenceTypes = ['comment', 'performance', 'trend'];
+    const cleanedIdeas = ideas.slice(0, 5).map(idea => {
+      // Filter evidence to only include valid types
+      const cleanedEvidence = (idea.evidence || [])
+        .filter((ev: any) => validEvidenceTypes.includes(ev.type))
+        .map((ev: any) => ({
+          type: ev.type,
+          text: ev.text,
+          ...(ev.videoId && { videoId: ev.videoId }),
+          ...(ev.commentId && { commentId: ev.commentId })
+        }));
+
+      return {
+        ...idea,
+        evidence: cleanedEvidence
+      };
+    });
+
     // Get current Sunday
     const now = new Date();
     const weekOf = new Date(now);
@@ -109,7 +138,7 @@ Return as JSON array with 5 ideas.`;
       userId: userObjectId,
       generatedAt: new Date(),
       weekOf,
-      ideas: ideas.slice(0, 5),
+      ideas: cleanedIdeas,
       emailStatus: "pending",
     });
 

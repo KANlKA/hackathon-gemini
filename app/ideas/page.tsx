@@ -182,54 +182,66 @@ function IdeaCard({ idea, index }: { idea: any; index: number }) {
         </div>
 
         {/* Evidence Preview */}
-        <div className="mb-6">
-          <h3 className="font-semibold mb-3 text-lg">📚 Evidence</h3>
-          <div className="space-y-2">
-            {idea.evidence.slice(0, 2).map((ev: any, i: number) => (
-              <div
-                key={i}
-                className="p-3 bg-gray-50 rounded border border-gray-200 text-sm"
-              >
-                <Badge variant="outline" className="mb-2">
-                  {ev.type}
-                </Badge>
-                <p className="text-gray-700">{ev.text}</p>
-              </div>
-            ))}
-            {idea.evidence.length > 2 && (
-              <p className="text-sm text-gray-500">
-                +{idea.evidence.length - 2} more pieces of evidence
-              </p>
-            )}
+        {idea.evidence && idea.evidence.length > 0 && (
+          <div className="mb-6">
+            <h3 className="font-semibold mb-3 text-lg">📚 Evidence</h3>
+            <div className="space-y-2">
+              {idea.evidence.slice(0, 2).map((ev: any, i: number) => (
+                <div
+                  key={i}
+                  className="p-3 bg-gray-50 rounded border border-gray-200 text-sm"
+                >
+                  <Badge variant="outline" className="mb-2">
+                    {ev.type}
+                  </Badge>
+                  <p className="text-gray-700">{ev.text}</p>
+                </div>
+              ))}
+              {idea.evidence.length > 2 && (
+                <p className="text-sm text-gray-500">
+                  +{idea.evidence.length - 2} more pieces of evidence
+                </p>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Suggested Structure */}
-        <div className="mb-6">
-          <h3 className="font-semibold mb-3 text-lg">🎬 Suggested Structure</h3>
-          <div className="grid md:grid-cols-2 gap-3">
-            <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-              <p className="text-xs text-gray-600 mb-1">Hook</p>
-              <p className="font-medium text-sm">{idea.suggestedStructure.hook}</p>
-            </div>
-            <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-              <p className="text-xs text-gray-600 mb-1">Format</p>
-              <p className="font-medium text-sm capitalize">
-                {idea.suggestedStructure.format}
-              </p>
-            </div>
-            <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-              <p className="text-xs text-gray-600 mb-1">Length</p>
-              <p className="font-medium text-sm">{idea.suggestedStructure.length}</p>
-            </div>
-            <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-              <p className="text-xs text-gray-600 mb-1">Tone</p>
-              <p className="font-medium text-sm capitalize">
-                {idea.suggestedStructure.tone}
-              </p>
+        {idea.suggestedStructure && (
+          <div className="mb-6">
+            <h3 className="font-semibold mb-3 text-lg">🎬 Suggested Structure</h3>
+            <div className="grid md:grid-cols-2 gap-3">
+              {idea.suggestedStructure.hook && (
+                <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                  <p className="text-xs text-gray-600 mb-1">Hook</p>
+                  <p className="font-medium text-sm">{idea.suggestedStructure.hook}</p>
+                </div>
+              )}
+              {idea.suggestedStructure.format && (
+                <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                  <p className="text-xs text-gray-600 mb-1">Format</p>
+                  <p className="font-medium text-sm capitalize">
+                    {idea.suggestedStructure.format}
+                  </p>
+                </div>
+              )}
+              {idea.suggestedStructure.length && (
+                <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                  <p className="text-xs text-gray-600 mb-1">Length</p>
+                  <p className="font-medium text-sm">{idea.suggestedStructure.length}</p>
+                </div>
+              )}
+              {idea.suggestedStructure.tone && (
+                <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                  <p className="text-xs text-gray-600 mb-1">Tone</p>
+                  <p className="font-medium text-sm capitalize">
+                    {idea.suggestedStructure.tone}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
-        </div>
+        )}
 
         {/* Actions */}
         <div className="flex gap-3">
