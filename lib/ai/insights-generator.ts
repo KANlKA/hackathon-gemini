@@ -241,14 +241,11 @@ export async function generateCreatorInsights(userId: string) {
 
   const userObjectId = new mongoose.Types.ObjectId(userId);
 
-  // Fetch all videos
   const videos = await Video.find({ userId: userObjectId });
-
   if (videos.length === 0) {
     throw new Error("No videos found for analysis");
   }
 
-  // Fetch all comments
   const videoIds = videos.map((v) => v._id);
   const comments = await Comment.find({ videoId: { $in: videoIds } });
 
@@ -305,9 +302,7 @@ export async function generateCreatorInsights(userId: string) {
     Array.from(intentCounts.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] ||
     "learning";
 
-  // Determine skill level (based on complexity)
   const complexityCounts = new Map<string, number>();
-
   videos.forEach((video) => {
     const complexity = video.analysis.complexity || "intermediate";
     complexityCounts.set(
@@ -343,37 +338,45 @@ export async function generateCreatorInsights(userId: string) {
       });
     }
 
-    if (comment.intent === "confusion") {
-      comment.topics.forEach((topic) => {
-        confusionThemes.set(topic, (confusionThemes.get(topic) || 0) + 1);
-      });
-    }
+    comments.forEach((comment) => {
+      if (comment.intent === "request" || comment.intent === "question") {
+        comment.topics.forEach((topic) => {
+          const current = requestThemes.get(topic) || {
+            mentions: 0,
+            videoIds: new Set(),
+          };
+          current.mentions++;
+          current.videoIds.add(comment.videoId);
+          requestThemes.set(topic, current);
+        });
+      }
 
-    if (comment.intent === "praise") {
-      comment.topics.forEach((topic) => {
-        praiseThemes.set(topic, (praiseThemes.get(topic) || 0) + 1);
-      });
-    }
-  });
+      if (comment.intent === "confusion") {
+        comment.topics.forEach((topic) => {
+          confusionThemes.set(topic, (confusionThemes.get(topic) || 0) + 1);
+        });
+      }
 
-  const topRequests = Array.from(requestThemes.entries())
-    .map(([theme, data]) => ({
-      theme,
-      mentions: data.mentions,
-      videoIds: Array.from(data.videoIds),
-    }))
-    .sort((a, b) => b.mentions - a.mentions)
-    .slice(0, 10);
+      if (comment.intent === "praise") {
+        comment.topics.forEach((topic) => {
+          praiseThemes.set(topic, (praiseThemes.get(topic) || 0) + 1);
+        });
+      }
+    });
 
-  const confusionAreas = Array.from(confusionThemes.entries())
-    .map(([area, mentions]) => ({ area, mentions }))
-    .sort((a, b) => b.mentions - a.mentions)
-    .slice(0, 5);
+    topRequests = Array.from(requestThemes.entries())
+      .map(([theme, data]) => ({
+        theme,
+        mentions: data.mentions,
+        videoIds: Array.from(data.videoIds),
+      }))
+      .sort((a, b) => b.mentions - a.mentions)
+      .slice(0, 10);
 
-  const praisePatterns = Array.from(praiseThemes.entries())
-    .map(([pattern, mentions]) => ({ pattern, mentions }))
-    .sort((a, b) => b.mentions - a.mentions)
-    .slice(0, 5);
+    confusionAreas = Array.from(confusionThemes.entries())
+      .map(([area, mentions]) => ({ area, mentions }))
+      .sort((a, b) => b.mentions - a.mentions)
+      .slice(0, 5);
 
   // Engagement quality (based on average comment length)
   const avgCommentLength =
@@ -401,11 +404,14 @@ export async function generateCreatorInsights(userId: string) {
         skillLevel,
         engagementQuality,
       },
-      commentThemes: {
-        topRequests,
-        confusionAreas,
-        praisePatterns,
-      },
+      commentThemes:
+        comments.length > 0
+          ? {
+               topRequests,
+               confusionAreas,
+               praisePatterns,
+            }
+          : null,
       lastUpdatedAt: new Date(),
     },
     { upsert: true, new: true }

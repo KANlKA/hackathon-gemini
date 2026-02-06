@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Brain, Video, MessageSquare, TrendingUp, Sparkles } from "lucide-react";
+import { VideoCarousel } from "@/components/dashboard/video-carousel";
+import { AudiencePulse } from "@/components/dashboard/audience-pulse";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -90,20 +92,81 @@ function ConnectChannelPrompt({ onConnect }: { onConnect: () => void }) {
 }
 
 function SyncingProgress({ channelName }: { channelName: string }) {
+  const [progress, setProgress] = useState<any>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const pollProgress = async () => {
+      try {
+        const res = await fetch('/api/youtube/progress');
+        const data = await res.json();
+        setProgress(data);
+
+        // If completed, refresh the page to show dashboard
+        if (data.status === 'completed') {
+          setTimeout(() => {
+            router.refresh();
+          }, 2000);
+        }
+      } catch (error) {
+        console.error('Error fetching progress:', error);
+      }
+    };
+
+    // Poll every 2 seconds
+    pollProgress();
+    const interval = setInterval(pollProgress, 2000);
+
+    return () => clearInterval(interval);
+  }, [router]);
+
+  const progressPercentage = progress?.totalVideos > 0
+    ? Math.round((progress.processedVideos / progress.totalVideos) * 100)
+    : 0;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
       <Card className="max-w-2xl w-full bg-white/10 backdrop-blur-md border-white/20">
         <CardContent className="pt-6 text-center">
           <div className="animate-spin h-16 w-16 border-4 border-purple-400 border-t-transparent rounded-full mx-auto mb-6"></div>
           <h2 className="text-2xl font-bold text-white mb-2">Analyzing {channelName}...</h2>
-          <p className="text-gray-300 mb-4">
-            We're analyzing all your videos and comments. This usually takes 2-5 minutes.
-          </p>
-          <div className="space-y-2 text-left max-w-md mx-auto text-gray-400">
-            <p>✓ Fetching videos...</p>
-            <p>✓ Downloading comments...</p>
-            <p>⏳ Analyzing content with AI...</p>
-            <p className="text-gray-500">⏳ Generating insights...</p>
+
+          {progress?.status === 'completed' ? (
+            <div className="mb-4">
+              <p className="text-green-400 text-xl mb-2">✓ Analysis Complete!</p>
+              <p className="text-gray-300">Redirecting to dashboard...</p>
+            </div>
+          ) : progress?.totalVideos > 0 ? (
+            <div className="mb-4">
+              <p className="text-purple-300 text-xl mb-2">
+                {progress.processedVideos} of {progress.totalVideos} videos analyzed
+              </p>
+              <div className="w-full bg-gray-700 rounded-full h-3 mb-4">
+                <div
+                  className="bg-purple-500 h-3 rounded-full transition-all duration-500"
+                  style={{ width: `${progressPercentage}%` }}
+                ></div>
+              </div>
+              <p className="text-gray-300 text-sm truncate max-w-md mx-auto">
+                Currently analyzing: {progress.currentVideo}
+              </p>
+            </div>
+          ) : (
+            <p className="text-gray-300 mb-4">
+              Fetching your videos and comments...
+            </p>
+          )}
+
+          <div className="space-y-2 text-left max-w-md mx-auto text-gray-400 mt-6">
+            <p className={progress?.status === 'fetching' ? 'text-purple-300' : 'text-gray-500'}>
+              {progress?.status !== 'fetching' ? '✓' : '⏳'} Fetching videos
+            </p>
+            <p className={progress?.status === 'analyzing' ? 'text-purple-300' : 'text-gray-500'}>
+              {progress?.status === 'completed' ? '✓' : progress?.status === 'analyzing' ? '⏳' : ''} Analyzing content with AI
+            </p>
+            <p className={progress?.status === 'completed' ? 'text-green-400' : 'text-gray-500'}>
+              {progress?.status === 'completed' ? '✓' : '⏳'} Generating insights
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -115,6 +178,8 @@ function DashboardContent() {
   const [stats, setStats] = useState<any>(null);
   const [insights, setInsights] = useState<any>(null);
   const [ideas, setIdeas] = useState<any>(null);
+  const [syncing, setSyncing] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -138,18 +203,102 @@ function DashboardContent() {
     fetchData();
   }, []);
 
+  const handleRefreshData = async () => {
+    try {
+      setSyncing(true);
+      console.log("[DASHBOARD] Initiating sync...");
+
+      const res = await fetch("/api/youtube/sync", { method: "POST" });
+      const data = await res.json();
+
+      console.log("[DASHBOARD] Sync response:", data);
+
+      if (data.error) {
+        console.error("[DASHBOARD] Sync error:", data.error);
+        alert(`Sync error: ${data.error}`);
+        setSyncing(false);
+        return;
+      }
+
+      if (data.success) {
+        // Poll for sync completion
+        let pollCount = 0;
+        const maxPolls = 100; // 100 * 3 seconds = 5 minutes max
+
+        const checkSync = setInterval(async () => {
+          pollCount++;
+          console.log(`[DASHBOARD] Polling sync status (${pollCount}/${maxPolls})...`);
+
+          try {
+            const statusRes = await fetch("/api/youtube/sync");
+            const statusData = await statusRes.json();
+
+            console.log("[DASHBOARD] Sync status:", statusData);
+
+            if (statusData.syncStatus === "completed") {
+              console.log("[DASHBOARD] Sync completed! Refreshing...");
+              clearInterval(checkSync);
+              setSyncing(false);
+
+              // Refresh the page data
+              setTimeout(() => {
+                window.location.reload();
+              }, 1000);
+            } else if (statusData.syncStatus === "failed") {
+              console.error("[DASHBOARD] Sync failed!");
+              clearInterval(checkSync);
+              setSyncing(false);
+              alert("Sync failed. Please try again.");
+            } else if (pollCount >= maxPolls) {
+              console.error("[DASHBOARD] Sync timeout!");
+              clearInterval(checkSync);
+              setSyncing(false);
+              alert("Sync is taking longer than expected. It may still complete in the background.");
+            }
+          } catch (error) {
+            console.error("[DASHBOARD] Error checking sync status:", error);
+          }
+        }, 3000);
+      }
+    } catch (error) {
+      console.error("[DASHBOARD] Error refreshing data:", error);
+      setSyncing(false);
+      alert("Failed to start sync. Please try again.");
+    }
+  };
+
   if (!stats || !insights) {
     return <DashboardSkeleton />;
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold">Dashboard</h1>
+<<<<<<< HEAD
           <Link href="/settings">
             <Button variant="outline">Settings</Button>
           </Link>
+=======
+          <Button
+            onClick={handleRefreshData}
+            disabled={syncing}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            {syncing ? (
+              <>
+                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                Syncing...
+              </>
+            ) : (
+              <>
+                <TrendingUp className="mr-2 h-4 w-4" />
+                Refresh Data
+              </>
+            )}
+          </Button>
+>>>>>>> c9bc7c79e45adb69d14c596edd2ae2f65281260d
         </div>
 
         {/* Stats Overview */}
@@ -175,6 +324,13 @@ function DashboardContent() {
             value={ideas?.ideas?.length || 0}
           />
         </div>
+        {/* Video Carousel */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Your Videos</h2>
+          <VideoCarousel />
+        </div>
+        <AudiencePulse />
+
 
         {/* Top Insights */}
         <Card className="mb-8">
