@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Settings, LogOut, HelpCircle, Mail } from "lucide-react";
+import { Settings, LogOut, HelpCircle, Mail, MessageSquare } from "lucide-react";
 
 export function ProfileDropdown() {
   const { data: session } = useSession();
@@ -30,6 +30,11 @@ export function ProfileDropdown() {
 
   const handleSettings = () => {
     router.push("/settings");
+    setIsOpen(false);
+  };
+
+  const handleContact = () => {
+    router.push("/contact");
     setIsOpen(false);
   };
 
@@ -55,7 +60,7 @@ export function ProfileDropdown() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-56 bg-white">
         {/* User Info */}
         <div className="px-4 py-3">
           <p className="text-sm font-semibold text-gray-900">
@@ -72,16 +77,25 @@ export function ProfileDropdown() {
           <span>Settings</span>
         </DropdownMenuItem>
 
+        {/* Contact Us */}
+        <DropdownMenuItem onClick={handleContact} className="cursor-pointer">
+          <MessageSquare className="mr-2 h-4 w-4" />
+          <span>Contact Us</span>
+        </DropdownMenuItem>
+
         {/* Documentation */}
         <DropdownMenuItem
-          onClick={() => router.push("/documentation")}
+          onClick={() => {
+            router.push("/documentation");
+            setIsOpen(false);
+          }}
           className="cursor-pointer"
         >
           <HelpCircle className="mr-2 h-4 w-4" />
           <span>Documentation</span>
         </DropdownMenuItem>
 
-        {/* Contact/Feedback */}
+        {/* Email Support */}
         <DropdownMenuItem
           onClick={() => {
             window.open("mailto:support@creatormind.ai", "_blank");
@@ -90,7 +104,7 @@ export function ProfileDropdown() {
           className="cursor-pointer"
         >
           <Mail className="mr-2 h-4 w-4" />
-          <span>Contact Support</span>
+          <span>Email Support</span>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
