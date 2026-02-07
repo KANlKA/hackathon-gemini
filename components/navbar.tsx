@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, TrendingUp, Lightbulb } from "lucide-react";
 
@@ -23,9 +24,21 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex h-16 items-center justify-center">
-          {/* Navigation Links */}
-          <div className="flex items-center gap-1">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
+          <Link href="/dashboard" className="flex items-center gap-3">
+            <Image
+              src="/logo.png"
+              alt="CreatorMind"
+              width={44}
+              height={44}
+              className="object-contain"
+            />
+            <span className="font-bold text-lg text-gray-900">CreatorMind</span>
+          </Link>
+
+          {/* Navigation Links - Centered */}
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-1">
             {navLinks.map((link) => {
               const Icon = link.icon;
               const active = isActive(link.href);
