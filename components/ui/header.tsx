@@ -16,11 +16,6 @@ export function Header() {
 	const { data: session } = useSession();
 	const pathname = usePathname();
 
-	// Don't show header on auth pages
-	if (pathname?.startsWith('/auth')) {
-		return null;
-	}
-
 	const links = session?.user ? [
 		{
 			label: 'Dashboard',
@@ -50,6 +45,11 @@ export function Header() {
 			document.body.style.overflow = '';
 		};
 	}, [open]);
+
+	// Don't show header on auth pages (after all hooks)
+	if (pathname?.startsWith('/auth')) {
+		return null;
+	}
 
 	return (
 		<div className="fixed top-0 left-0 right-0 z-[100] flex justify-center px-4 pt-4">
