@@ -39,7 +39,7 @@ function normalizeStringArray(value: unknown) {
 function isValidTimeZone(tz: string) {
   try {
     if (typeof Intl !== "undefined" && "supportedValuesOf" in Intl) {
-      // @ts-expect-error - supportedValuesOf is not in TS lib yet
+     
       return Intl.supportedValuesOf("timeZone").includes(tz);
     }
   } catch {
