@@ -45,9 +45,9 @@ export function ProfileDropdown() {
         <Button
           variant="ghost"
           size="sm"
-          className="relative h-10 w-10 rounded-full p-0"
+          className="relative h-10 w-10 rounded-full p-0 hover:bg-white/10"
         >
-          <Avatar className="h-10 w-10 cursor-pointer">
+          <Avatar className="h-10 w-10 cursor-pointer border-2 border-white/20">
             <AvatarImage src={session.user.image || ""} alt={session.user.name || ""} />
             <AvatarFallback className="bg-purple-600 text-white font-semibold">
               {userInitials}
@@ -55,19 +55,19 @@ export function ProfileDropdown() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-56 bg-black/90 backdrop-blur-lg border-white/20">
         {/* User Info */}
         <div className="px-4 py-3">
-          <p className="text-sm font-semibold text-gray-900">
+          <p className="text-sm font-semibold text-white">
             {session.user.name || "Creator"}
           </p>
-          <p className="text-xs text-gray-600">{session.user.email}</p>
+          <p className="text-xs text-gray-400">{session.user.email}</p>
         </div>
 
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="bg-white/10" />
 
         {/* Settings */}
-        <DropdownMenuItem onClick={handleSettings} className="cursor-pointer">
+        <DropdownMenuItem onClick={handleSettings} className="cursor-pointer text-white hover:bg-white/10 focus:bg-white/10">
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>
@@ -75,7 +75,7 @@ export function ProfileDropdown() {
         {/* Documentation */}
         <DropdownMenuItem
           onClick={() => router.push("/documentation")}
-          className="cursor-pointer"
+          className="cursor-pointer text-white hover:bg-white/10 focus:bg-white/10"
         >
           <HelpCircle className="mr-2 h-4 w-4" />
           <span>Documentation</span>
@@ -87,16 +87,16 @@ export function ProfileDropdown() {
             window.open("mailto:support@creatormind.ai", "_blank");
             setIsOpen(false);
           }}
-          className="cursor-pointer"
+          className="cursor-pointer text-white hover:bg-white/10 focus:bg-white/10"
         >
           <Mail className="mr-2 h-4 w-4" />
           <span>Contact Support</span>
         </DropdownMenuItem>
 
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="bg-white/10" />
 
         {/* Logout */}
-        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-400 hover:bg-red-500/10 focus:bg-red-500/10 hover:text-red-300">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log Out</span>
         </DropdownMenuItem>
