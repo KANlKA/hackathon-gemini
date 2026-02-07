@@ -295,6 +295,12 @@ export default function InsightsPage() {
             </div>
           </CardContent>
         </Card>
+                    {/* Video Carousel */}
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4">Your Videos</h2>
+              <VideoCarousel />
+            </div>
+            <AudiencePulse />
 
         {/* Comment Intelligence */}
         <Card>
@@ -373,12 +379,6 @@ export default function InsightsPage() {
                 </div>
               </div>
             )}
-            {/* Video Carousel */}
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-4">Your Videos</h2>
-              <VideoCarousel />
-            </div>
-            <AudiencePulse />
           </CardContent>
         </Card>
       </div>

@@ -15,16 +15,16 @@ import {
 export function WeeklyInsightsEmailTemplate({
   userName,
   ideas,
-  insights,
-  patterns,
-  actions,
+  insights = [],
+  patterns = [],
+  actions = [],
   unsubscribeUrl,
 }: {
   userName: string;
   ideas: any[];
-  insights: string[];
-  patterns: string[];
-  actions: string[];
+  insights?: string[];
+  patterns?: string[];
+  actions?: string[];
   unsubscribeUrl: string;
 }) {
   return (
@@ -37,10 +37,10 @@ export function WeeklyInsightsEmailTemplate({
           <Section style={headerSection}>
             <Section style={headerContent}>
               <Heading style={mainTitle}>
-                📊 Your Weekly Creator Intelligence
+                💡 Your Weekly Video Ideas
               </Heading>
               <Text style={subtitle}>
-                Hi {userName}, here's what your audience wants this week
+                {ideas.length} ideas to create this week
               </Text>
             </Section>
           </Section>
@@ -48,11 +48,8 @@ export function WeeklyInsightsEmailTemplate({
           {/* Top Ideas Section */}
           <Section style={cardSection}>
             <Heading as="h2" style={sectionHeading}>
-            {`💡 Top ${ideas.length} Video Ideas`}
+              Ideas Ready to Create
             </Heading>
-            <Text style={sectionDescription}>
-              Based on your audience comments, past performance, and trending topics
-            </Text>
 
             {ideas.map((idea, idx) => {
               const confidence = Math.round(idea.confidence * 100);
@@ -67,76 +64,60 @@ export function WeeklyInsightsEmailTemplate({
                     <div style={{ flex: 1 }}>
                       <Text style={ideaTitle}>{idea.title}</Text>
                       <Text style={ideaMeta}>
-                        📊 {String(engagement)}% predicted engagement • 🎯{" "}
-                        {String(confidence)}% confidence
+                        📊 {String(engagement)}% engagement • 🎯 {String(confidence)}% confidence
                       </Text>
                     </div>
                   </div>
 
                   {/* Why It Works */}
-                  <Section style={reasonSection}>
-                    <Text style={reasonTitle}>Why it will work:</Text>
-                    <Text style={bulletPoint}>
-                      ✓ {idea.reasoning?.commentDemand ||
-                        "Audience requested this topic"}
-                    </Text>
-                    <Text style={bulletPoint}>
-                      ✓ {idea.reasoning?.audienceFit ||
-                        "Aligns with your audience"}
-                    </Text>
-                    {idea.suggestedStructure && (
-                      <Text style={bulletPoint}>
-                        ✓ Format: {idea.suggestedStructure.format} • Tone:{" "}
-                        {idea.suggestedStructure.tone}
-                      </Text>
-                    )}
-                  </Section>
+                  {idea.reasoning && (
+                    <Section style={reasonSection}>
+                      <Text style={reasonTitle}>Why it will work:</Text>
+                      {idea.reasoning.commentDemand && (
+                        <Text style={bulletPoint}>
+                          ✓ {idea.reasoning.commentDemand}
+                        </Text>
+                      )}
+                      {idea.reasoning.pastPerformance && (
+                        <Text style={bulletPoint}>
+                          ✓ {idea.reasoning.pastPerformance}
+                        </Text>
+                      )}
+                      {idea.reasoning.audienceFit && (
+                        <Text style={bulletPoint}>
+                          ✓ {idea.reasoning.audienceFit}
+                        </Text>
+                      )}
+                    </Section>
+                  )}
+
+                  {/* Suggested Structure */}
+                  {idea.suggestedStructure && (
+                    <Section style={structureSection}>
+                      <Text style={structureTitle}>Content Structure</Text>
+                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                        {idea.suggestedStructure.format && (
+                          <Text style={structureTag}>
+                            📹 {idea.suggestedStructure.format}
+                          </Text>
+                        )}
+                        {idea.suggestedStructure.length && (
+                          <Text style={structureTag}>
+                            ⏱️ {idea.suggestedStructure.length}
+                          </Text>
+                        )}
+                        {idea.suggestedStructure.tone && (
+                          <Text style={structureTag}>
+                            🎨 {idea.suggestedStructure.tone}
+                          </Text>
+                        )}
+                      </div>
+                    </Section>
+                  )}
                 </Section>
               );
             })}
           </Section>
-
-          {/* Key Insights */}
-          {insights.length > 0 && (
-            <Section style={cardSection}>
-              <Heading as="h2" style={sectionHeading}>
-                🎯 Key Insights from Your Data
-              </Heading>
-              {insights.map((insight, idx) => (
-                <Text key={idx} style={bulletPoint}>
-                  {insight}
-                </Text>
-              ))}
-            </Section>
-          )}
-
-          {/* Performance Patterns */}
-          {patterns.length > 0 && (
-            <Section style={cardSection}>
-              <Heading as="h2" style={sectionHeading}>
-                📈 Performance Patterns
-              </Heading>
-              {patterns.map((pattern, idx) => (
-                <Text key={idx} style={bulletPoint}>
-                  {pattern}
-                </Text>
-              ))}
-            </Section>
-          )}
-
-          {/* Action Items */}
-          {actions.length > 0 && (
-            <Section style={cardSection}>
-              <Heading as="h2" style={sectionHeading}>
-                ✅ Your Action Items
-              </Heading>
-              {actions.map((action, idx) => (
-                <Text key={idx} style={actionItem}>
-                  {String(idx + 1)}. {action}
-                </Text>
-              ))}
-            </Section>
-          )}
 
           {/* CTA Button */}
           <Section style={ctaSection}>
@@ -152,18 +133,17 @@ export function WeeklyInsightsEmailTemplate({
           <Hr style={divider} />
           <Section style={footerSection}>
             <Text style={footerText}>
-              You're receiving this email because weekly insights are enabled in
-              your{" "}
-              <Link href={`${process.env.NEXT_PUBLIC_APP_URL}/settings`}>
-                settings
+              You're receiving this because weekly email insights are enabled in your
+              <Link href={`${process.env.NEXT_PUBLIC_APP_URL}/settings`} style={footerLink}>
+                {" "}settings{" "}
               </Link>
               .
             </Text>
             <Text style={footerText}>
               <Link href={unsubscribeUrl} style={unsubscribeLink}>
                 Unsubscribe from emails
-              </Link>{" "}
-              • © 2025 CreatorMind. All rights reserved.
+              </Link>
+              {" • "}© 2025 CreatorMind. All rights reserved.
             </Text>
           </Section>
         </Container>
@@ -217,17 +197,10 @@ const cardSection = {
 };
 
 const sectionHeading = {
-  margin: "0 0 8px 0",
+  margin: "0 0 16px 0",
   fontSize: "18px",
   fontWeight: "600",
   color: "#0f172a",
-};
-
-const sectionDescription = {
-  margin: "0 0 16px 0",
-  fontSize: "13px",
-  color: "#64748b",
-  lineHeight: "1.5",
 };
 
 const ideaCard = {
@@ -286,19 +259,33 @@ const reasonTitle = {
 };
 
 const bulletPoint = {
-  margin: "0 0 8px 0",
+  margin: "0 0 6px 0",
   fontSize: "13px",
   color: "#334155",
   lineHeight: "1.5",
-  paddingLeft: "4px",
 };
 
-const actionItem = {
+const structureSection = {
+  marginTop: "12px",
+  paddingTop: "12px",
+  borderTop: "1px solid #e2e8f0",
+};
+
+const structureTitle = {
   margin: "0 0 8px 0",
   fontSize: "13px",
+  fontWeight: "600",
+  color: "#0f172a",
+};
+
+const structureTag = {
+  display: "inline-block",
+  backgroundColor: "#e2e8f0",
+  padding: "4px 8px",
+  borderRadius: "4px",
+  fontSize: "12px",
   color: "#334155",
-  lineHeight: "1.5",
-  paddingLeft: "4px",
+  margin: "0",
 };
 
 const ctaSection = {
@@ -333,6 +320,11 @@ const footerText = {
   fontSize: "12px",
   color: "#64748b",
   lineHeight: "1.5",
+};
+
+const footerLink = {
+  color: "#6366f1",
+  textDecoration: "underline",
 };
 
 const unsubscribeLink = {
