@@ -15,7 +15,17 @@ import {
   AlertCircle,
   LogIn,
   RefreshCw,
+  Clock,
+  Calendar,
+  Globe,
+  Target,
+  Filter,
+  Film,
+  Shield,
+  Link2,
+  Unlink,
 } from "lucide-react";
+import { toast } from "sonner";
 
 type Settings = {
   emailEnabled: boolean;
@@ -192,10 +202,11 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 p-6">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <Skeleton className="h-10 w-64" />
-          <Skeleton className="h-96" />
+      <div className="min-h-screen bg-black">
+        <div className="h-20" />
+        <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
+          <Skeleton className="h-12 w-64 bg-zinc-800" />
+          <Skeleton className="h-96 bg-zinc-800" />
         </div>
       </div>
     );
@@ -203,12 +214,13 @@ export default function SettingsPage() {
 
   if (status === "unauthenticated") {
     return (
-      <div className="min-h-screen bg-slate-50 p-6">
-        <div className="max-w-4xl mx-auto">
-          <Card className="border-red-200 bg-red-50">
+      <div className="min-h-screen bg-black">
+        <div className="h-20" />
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <Card className="bg-red-950/20 border-red-900/50">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-red-800">
-                <LogIn className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-red-400">
+                <Shield className="h-5 w-5" />
                 Authentication Required
               </CardTitle>
             </CardHeader>
@@ -232,11 +244,12 @@ export default function SettingsPage() {
 
   if (!settings || !editedSettings) {
     return (
-      <div className="min-h-screen bg-slate-50 p-6">
-        <div className="max-w-4xl mx-auto">
-          <Card className="border-red-200 bg-red-50">
+      <div className="min-h-screen bg-black">
+        <div className="h-20" />
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <Card className="bg-red-950/20 border-red-900/50">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-red-800">
+              <CardTitle className="flex items-center gap-2 text-red-400">
                 <AlertCircle className="h-5 w-5" />
                 Error Loading Settings
               </CardTitle>
@@ -260,8 +273,11 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-black">
+      {/* Navbar space */}
+      <div className="h-20" />
+
+      <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -270,31 +286,32 @@ export default function SettingsPage() {
               Manage your email preferences and content filters
             </p>
           </div>
+
           {!isEditMode ? (
             <Button
               onClick={() => setIsEditMode(true)}
               size="lg"
-              className="gap-2 bg-purple-600 hover:bg-purple-700"
+              className="bg-purple-600 hover:bg-purple-700 gap-2"
             >
               <Edit3 className="h-4 w-4" />
-              Edit
+              Edit Settings
             </Button>
           ) : (
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <Button
                 onClick={handleSaveSettings}
                 disabled={saving}
                 size="lg"
-                className="gap-2 bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 gap-2"
               >
                 <Save className="h-4 w-4" />
-                {saving ? "Saving..." : "Save"}
+                {saving ? "Saving..." : "Save Changes"}
               </Button>
               <Button
                 onClick={handleCancel}
                 variant="outline"
                 size="lg"
-                className="gap-2"
+                className="gap-2 border-zinc-700 text-gray-300"
               >
                 <X className="h-4 w-4" />
                 Cancel
@@ -339,18 +356,18 @@ export default function SettingsPage() {
               Email Schedule
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 pt-6">
             {!isEditMode ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-blue-50 rounded-lg border border-slate-200">
-                  <span className="font-semibold text-gray-900">
-                    Weekly Emails
+              <div className="space-y-6">
+                <div className="flex items-center justify-between p-5 bg-purple-950/20 rounded-xl border-2 border-purple-900/30">
+                  <span className="font-semibold text-white text-lg">
+                    Weekly Email Notifications
                   </span>
                   <Badge
                     className={
                       editedSettings.emailEnabled
-                        ? "bg-green-100 text-green-800 px-3 py-1"
-                        : "bg-gray-100 text-gray-800 px-3 py-1"
+                        ? "bg-green-600 text-white text-base px-4 py-2"
+                        : "bg-gray-700 text-gray-300 text-base px-4 py-2"
                     }
                   >
                     {editedSettings.emailEnabled ? "Enabled" : "Disabled"}
@@ -358,28 +375,39 @@ export default function SettingsPage() {
                 </div>
 
                 {editedSettings.emailEnabled && (
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-                      <p className="text-xs font-medium text-gray-600 uppercase">
-                        Frequency
-                      </p>
-                      <p className="font-semibold text-gray-900 mt-2 capitalize">
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="p-5 bg-zinc-800/50 rounded-xl border border-zinc-700">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Calendar className="h-5 w-5 text-blue-400" />
+                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                          Frequency
+                        </p>
+                      </div>
+                      <p className="font-semibold text-white text-lg capitalize">
                         {editedSettings.emailFrequency}
                       </p>
                     </div>
-                    <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-                      <p className="text-xs font-medium text-gray-600 uppercase">
-                        Day
-                      </p>
-                      <p className="font-semibold text-gray-900 mt-2 capitalize">
+
+                    <div className="p-5 bg-zinc-800/50 rounded-xl border border-zinc-700">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Calendar className="h-5 w-5 text-green-400" />
+                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                          Day
+                        </p>
+                      </div>
+                      <p className="font-semibold text-white text-lg capitalize">
                         {editedSettings.emailDay}
                       </p>
                     </div>
-                    <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-                      <p className="text-xs font-medium text-gray-600 uppercase">
-                        Time
-                      </p>
-                      <p className="font-semibold text-gray-900 mt-2">
+
+                    <div className="p-5 bg-zinc-800/50 rounded-xl border border-zinc-700">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Clock className="h-5 w-5 text-purple-400" />
+                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                          Time
+                        </p>
+                      </div>
+                      <p className="font-semibold text-white text-lg">
                         {editedSettings.emailTime}
                       </p>
                     </div>
@@ -403,8 +431,8 @@ export default function SettingsPage() {
                 )}
               </div>
             ) : (
-              <>
-                <label className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-100 transition">
+              <div className="space-y-6">
+                <label className="flex items-center gap-4 p-5 bg-purple-950/20 rounded-xl border-2 border-purple-900/30 cursor-pointer hover:bg-purple-950/30 transition-all">
                   <input
                     type="checkbox"
                     checked={editedSettings.emailEnabled}
@@ -414,7 +442,7 @@ export default function SettingsPage() {
                         emailEnabled: e.target.checked,
                       })
                     }
-                    className="w-5 h-5 rounded cursor-pointer accent-purple-600"
+                    className="w-6 h-6 rounded cursor-pointer accent-purple-600"
                   />
                   <span className="font-semibold text-gray-900">
                     Enable weekly email ideas
@@ -528,7 +556,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
                 )}
-              </>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -728,7 +756,7 @@ export default function SettingsPage() {
                     ))}
                   </div>
                 </div>
-              </>
+              </div>
             )}
           </CardContent>
         </Card>

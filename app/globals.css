@@ -2,15 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CSS variables */
+/* CSS variables - Dark theme by default */
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
 }
 
 .dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
 }
 
 body {
@@ -39,4 +39,9 @@ body {
   --chart-3: 142 65% 50%;
   --chart-4: 45 88% 52%;
   --chart-5: 10 80% 60%;
+}
+
+/* Prevent horizontal overflow */
+html, body {
+  overflow-x: hidden;
 }

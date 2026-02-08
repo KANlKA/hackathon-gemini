@@ -2,6 +2,7 @@ import connectDB from "@/lib/db/mongodb";
 import Video from "@/models/Video";
 import CreatorInsight from "@/models/CreatorInsight";
 import GeneratedIdea from "@/models/GeneratedIdea";
+import { generateHeuristicContent } from "@/lib/content/heuristic-generator";
 import mongoose from "mongoose";
 import { generateJSON } from "./gemini";
 
@@ -33,7 +34,9 @@ export async function generateVideoIdeas(userId: string, desiredCount: number = 
     totalVideos: allVideos.length,
     avgEngagement: (avgEngagement * 100).toFixed(1),
     bestFormat: insights.patterns.bestFormats[0]?.format,
-    bestFormatEngagement: (insights.patterns.bestFormats[0]?.avgEngagement * 100).toFixed(1),
+    bestFormatEngagement: (
+      insights.patterns.bestFormats[0]?.avgEngagement * 100
+    ).toFixed(1),
     bestTopics: insights.patterns.bestTopics.slice(0, 5).map((t) => ({
       topic: t.topic,
       engagement: (t.avgEngagement * 100).toFixed(1),
@@ -59,7 +62,7 @@ Creator Profile:
 - Total Videos: ${context.totalVideos}
 - Average Engagement: ${context.avgEngagement}%
 - Best Format: ${context.bestFormat} (${context.bestFormatEngagement}% engagement)
-- Best Topics: ${context.bestTopics.map(t => `${t.topic} (${t.engagement}%)`).join(", ")}
+- Best Topics: ${context.bestTopics.map((t) => `${t.topic} (${t.engagement}%)`).join(", ")}
 - Best Tone: ${context.bestTone}
 - Audience Intent: ${context.audienceIntent}
 - Audience Skill Level: ${context.skillLevel}
@@ -94,14 +97,56 @@ For each idea, provide:
 - predictedEngagement: 0-1 (decimal)
 - confidence: 0-1 (decimal)
 - suggestedStructure: {hook: string, format: string, length: string, tone: string}
+- contentPack: {
+    hashtags: array of 15 strong YouTube hashtags
+    titleVariants: array of 10 viral title alternatives
+    script: full structured YouTube script for this idea
+  }
+
 
 CRITICAL: For evidence.type, use ONLY these exact strings: "comment", "performance", "trend"
 Do NOT use "audienceFit" or any other value for evidence.type.
 
-Return as JSON array with ${desiredCount} ideas.`;
+Return ONLY valid JSON.
+
+Structure EXACTLY like:
+
+[
+  {
+    "rank": number,
+    "title": string,
+    "reasoning": {
+      "commentDemand": string,
+      "pastPerformance": string,
+      "audienceFit": string,
+      "trendingScore": number
+    },
+    "evidence": [
+      {
+        "type": "comment" | "performance" | "trend",
+        "text": string
+      }
+    ],
+    "predictedEngagement": number,
+    "confidence": number,
+    "suggestedStructure": {
+      "hook": string,
+      "format": string,
+      "length": string,
+      "tone": string
+    },
+    "contentPack": {
+      "hashtags": [string],
+      "titleVariants": [string],
+      "script": string
+    }
+  }
+]
+  `;
 
   try {
     const ideas = await generateJSON(prompt);
+    console.log("AI RAW RESPONSE:", ideas);
 
     // Validate and ensure we have the desired count
     if (!Array.isArray(ideas) || ideas.length === 0) {
@@ -109,8 +154,8 @@ Return as JSON array with ${desiredCount} ideas.`;
     }
 
     // Clean up evidence types - remove any invalid types
-    const validEvidenceTypes = ['comment', 'performance', 'trend'];
-    const cleanedIdeas = ideas.slice(0, desiredCount).map((idea: any, index: number) => {
+    const validEvidenceTypes = ["comment", "performance", "trend"];
+    const cleanedIdeas = ideas.slice(0, 5).map((idea) => {
       // Filter evidence to only include valid types
       const cleanedEvidence = (idea.evidence || [])
         .filter((ev: any) => validEvidenceTypes.includes(ev.type))
@@ -118,13 +163,21 @@ Return as JSON array with ${desiredCount} ideas.`;
           type: ev.type,
           text: ev.text,
           ...(ev.videoId && { videoId: ev.videoId }),
-          ...(ev.commentId && { commentId: ev.commentId })
+          ...(ev.commentId && { commentId: ev.commentId }),
         }));
+
+      const fallbackContent = generateHeuristicContent(idea);
 
       return {
         ...idea,
-        rank: index + 1,
-        evidence: cleanedEvidence
+        evidence: cleanedEvidence,
+
+        contentPack: {
+          hashtags: idea.contentPack?.hashtags || fallbackContent.hashtags,
+          titleVariants:
+            idea.contentPack?.titleVariants || fallbackContent.titleVariants,
+          script: idea.contentPack?.script || fallbackContent.script,
+        },
       };
     });
 
