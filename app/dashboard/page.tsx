@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Brain, Video, MessageSquare, TrendingUp, Sparkles, BarChart3, ArrowRight, Briefcase } from "lucide-react";
 import { VideoCarousel } from "@/components/dashboard/video-carousel";
 import { AudiencePulse } from "@/components/dashboard/audience-pulse";
+import { EngagementTimeline } from "@/components/dashboard/engagement-timeline";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -280,6 +281,8 @@ function DashboardContent() {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-white">Dashboard</h1>
           <div className="flex gap-3">
+            <Link href="/performance">
+            </Link>
             <Button
               onClick={handleRefreshData}
               disabled={syncing}
@@ -323,6 +326,9 @@ function DashboardContent() {
             value={ideas?.ideas?.length || 0}
           />
         </div>
+
+        {/* Engagement Timeline Chart */}
+        <EngagementTimeline />
 
         {/* Performance Patterns CTA Card */}
         <Card className="mb-8 bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-purple-500/20">

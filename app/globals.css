@@ -6,11 +6,27 @@
 :root {
   --background: 0 0% 0%;
   --foreground: 0 0% 100%;
+
+  /* Chart colors for engagement timeline */
+  --chart-1: 262 83% 58%;  /* Purple - main engagement color */
+  --chart-2: 217 91% 60%;  /* Blue */
+  --chart-3: 142 71% 45%;  /* Green */
+  --chart-4: 45 93% 47%;   /* Yellow */
+  --chart-5: 10 84% 56%;   /* Red */
+
+  /* Additional chart utilities */
+  --radius: 0.5rem;
 }
 
 .dark {
   --background: 0 0% 0%;
   --foreground: 0 0% 100%;
+
+  --chart-1: 262 80% 65%;
+  --chart-2: 217 85% 65%;
+  --chart-3: 142 65% 50%;
+  --chart-4: 45 88% 52%;
+  --chart-5: 10 80% 60%;
 }
 
 body {
