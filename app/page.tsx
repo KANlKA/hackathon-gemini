@@ -1,13 +1,13 @@
 "use client";
 
 import { CTA } from "@/components/ui/cta";
-import { Brain, TrendingUp, Lightbulb } from "lucide-react";
 import { useScroll, useTransform } from "motion/react";
 import React from "react";
 import { GoogleGeminiEffect } from "@/components/ui/google-gemini-effect";
 import { HeroSection } from "@/components/ui/hero-section";
 import { TestimonialSection } from "@/components/ui/testimonial";
 import { ContactUs } from "@/components/ui/contact-us";
+import { AnimatedFeatures } from "@/components/ui/animated-features";
 
 export default function HomePage() {
   const ref = React.useRef(null);
@@ -40,22 +40,9 @@ export default function HomePage() {
             <HeroSection />
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 mt-80 max-w-6xl mx-auto pointer-events-auto">
-            <FeatureCard
-              icon={<Brain className="h-10 w-10 text-purple-400" />}
-              title="Deep Analysis"
-              description="We analyze ALL your videos, comments, and patterns to understand what truly works for YOUR channel."
-            />
-            <FeatureCard
-              icon={<Lightbulb className="h-10 w-10 text-yellow-400" />}
-              title="Top 5 Ideas Weekly"
-              description="Every week, get 5 video ideas backed by evidence from your own audience and performance data."
-            />
-            <FeatureCard
-              icon={<TrendingUp className="h-10 w-10 text-green-400" />}
-              title="Predict Performance"
-              description="See predicted engagement for each idea with confidence scores based on your historical data."
-            />
+          {/* Animated Feature Cards Section */}
+          <div className="mt-80 max-w-6xl mx-auto pointer-events-auto">
+            <AnimatedFeatures />
           </div>
 
           <div className="mt-64 text-center max-w-6xl mx-auto pointer-events-auto">
@@ -116,16 +103,6 @@ export default function HomePage() {
           </footer>
         </div>
       </main>
-    </div>
-  );
-}
-
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
-  return (
-    <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-purple-500/50 transition-all">
-      <div className="mb-4">{icon}</div>
-      <h3 className="text-2xl font-bold text-white mb-3">{title}</h3>
-      <p className="text-gray-300">{description}</p>
     </div>
   );
 }

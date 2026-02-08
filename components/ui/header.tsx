@@ -9,6 +9,11 @@ import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
 import { ProfileDropdown } from '@/components/layout/profile-dropdown';
 import { useSession, signOut } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
+import { Playwrite_NZ } from 'next/font/google';
+
+const playwrite = Playwrite_NZ({
+	weight: '400',
+});
 
 export function Header() {
 	const [open, setOpen] = React.useState(false);
@@ -79,7 +84,7 @@ export function Header() {
 					},
 				)}
 			>
-				<Link href="/" className="text-xl font-bold text-white">
+				<Link href="/" className={`${playwrite.className} text-xl font-bold text-white`}>
 					CreatorMind
 				</Link>
 				<div className="hidden items-center gap-2 md:flex">

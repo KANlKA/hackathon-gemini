@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
+import BlurText from '@/components/ui/blur-text';
 
 interface HeroSectionProps {
   title?: string | React.ReactNode;
@@ -31,7 +32,8 @@ export function HeroSection({
   className,
 }: HeroSectionProps) {
   return (
-    <div className={cn("text-center max-w-2xl mx-auto", className)}>
+    <div className={cn("text-center max-w-5xl mx-auto px-6 md:px-8 mt-20", className)}>
+      
       {/* Subtitle */}
       {subtitle && (
         <div className="inline-block mb-4 px-4 py-2 bg-purple-600/20 border border-purple-500/50 rounded-full">
@@ -41,11 +43,15 @@ export function HeroSection({
         </div>
       )}
 
-      {/* Title */}
+      {/* Title with Blur Animation */}
       {typeof title === 'string' ? (
-        <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-          {title}
-        </h1>
+        <BlurText
+  text={title}
+  animateBy="words"
+  delay={150}
+  className="text-5xl md:text-6xl font-semibold text-white mb-6 leading-[1.1] tracking-tight mx-auto justify-center"
+/>
+
       ) : (
         title
       )}
@@ -57,7 +63,7 @@ export function HeroSection({
         </p>
       )}
 
-      {/* CTAs (only render if provided) */}
+      {/* CTAs */}
       {(primaryCTA || secondaryCTA) && (
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           {primaryCTA && (
