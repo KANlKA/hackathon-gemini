@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Brain, Video, MessageSquare, TrendingUp, Sparkles, BarChart3, ArrowRight } from "lucide-react";
 import { VideoCarousel } from "@/components/dashboard/video-carousel";
 import { AudiencePulse } from "@/components/dashboard/audience-pulse";
-import { EngagementTimeline } from "@/components/dashboard/engagement-timeline";
+import { DailyEngagementChart } from "@/components/dashboard/daily-engagement-chart";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -72,8 +72,7 @@ export default function DashboardPage() {
 
 function ConnectChannelPrompt({ onConnect }: { onConnect: () => void }) {
   return (
-    <div className="min-h-[calc(100vh-4rem)] pt-24
- bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
       <Card className="max-w-2xl w-full bg-white/10 backdrop-blur-md border-white/20">
         <CardHeader className="text-center">
           <Brain className="h-16 w-16 text-purple-400 mx-auto mb-4" />
@@ -127,8 +126,7 @@ function SyncingProgress({ channelName }: { channelName: string }) {
     : 0;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] pt-24
- bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
       <Card className="max-w-2xl w-full bg-white/10 backdrop-blur-md border-white/20">
         <CardContent className="pt-6 text-center">
           <div className="animate-spin h-16 w-16 border-4 border-purple-400 border-t-transparent rounded-full mx-auto mb-6"></div>
@@ -275,13 +273,17 @@ function DashboardContent() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] pt-24
- bg-black p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
           <div className="flex gap-3">
             <Link href="/performance">
+              <Button variant="outline" className="gap-2 border-purple-300 text-purple-700 hover:bg-purple-50">
+                <BarChart3 className="h-4 w-4" />
+                View Performance Patterns
+                <ArrowRight className="h-4 w-4" />
+              </Button>
             </Link>
             <Button
               onClick={handleRefreshData}
@@ -327,20 +329,27 @@ function DashboardContent() {
           />
         </div>
 
-        {/* Engagement Timeline Chart */}
-        <EngagementTimeline />
+        {/* Daily Engagement Chart */}
+        <DailyEngagementChart />
+
+        {/* Video Carousel */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Your Videos</h2>
+          <VideoCarousel />
+        </div>
+        <AudiencePulse />
 
         {/* Performance Patterns CTA Card */}
-        <Card className="mb-8 bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-purple-500/20">
+        <Card className="mb-8 bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="bg-purple-600/20 p-3 rounded-lg">
-                  <BarChart3 className="h-8 w-8 text-purple-400" />
+                <div className="bg-purple-100 p-3 rounded-lg">
+                  <BarChart3 className="h-8 w-8 text-purple-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">Performance Patterns Analysis</h3>
-                  <p className="text-sm text-gray-300">
+                  <h3 className="text-lg font-bold text-gray-900">Performance Patterns Analysis</h3>
+                  <p className="text-sm text-gray-600">
                     See what's working best: formats, topics, tones, hooks, and optimal upload times
                   </p>
                 </div>
@@ -355,41 +364,23 @@ function DashboardContent() {
           </CardContent>
         </Card>
 
-        {/* Brand Collaboration Signals CTA Card */}
-        <Card className="mb-8 bg-gradient-to-br from-green-900/20 to-emerald-900/20 border-green-500/20">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="bg-green-600/20 p-3 rounded-lg">
-                  <Briefcase className="h-8 w-8 text-green-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">Brand Collaboration Signals</h3>
-                  <p className="text-sm text-gray-300">
-                    Discover industries, brands, and content styles that attract sponsorships
-                  </p>
-                </div>
-              </div>
-              <Link href="/brand-collaboration">
-                <Button className="bg-green-600 hover:bg-green-700 gap-2">
-                  View Opportunities
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Video Carousel */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Your Videos</h2>
+          <VideoCarousel />
+        </div>
+        <AudiencePulse />
 
         {/* Top Insights */}
-        <Card className="mb-8 bg-white/5 border-white/10">
+        <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="text-white">🎯 Your Top Insights</CardTitle>
+            <CardTitle>🎯 Your Top Insights</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {insights.insights.patterns.bestFormats.slice(0, 3).map((format: any, i: number) => (
-              <div key={i} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-                <span className="font-medium text-white">{format.format} videos</span>
-                <span className="text-green-400 font-semibold">
+              <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <span className="font-medium">{format.format} videos</span>
+                <span className="text-green-600 font-semibold">
                   {(format.avgEngagement * 100).toFixed(1)}% engagement
                 </span>
               </div>
@@ -398,18 +389,18 @@ function DashboardContent() {
         </Card>
 
         {/* Latest Ideas */}
-        <Card className="bg-white/5 border-white/10">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-white">💡 Latest Video Ideas</CardTitle>
+            <CardTitle>💡 Latest Video Ideas</CardTitle>
             <Link href="/ideas">
-              <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">View All</Button>
+              <Button variant="outline">View All</Button>
             </Link>
           </CardHeader>
           <CardContent>
             {ideas?.ideas?.slice(0, 3).map((idea: any, i: number) => (
-              <div key={i} className="mb-4 p-4 border border-white/10 rounded-lg hover:bg-white/5 transition-colors">
-                <h3 className="font-bold text-lg mb-2 text-white">{idea.title}</h3>
-                <div className="flex gap-4 text-sm text-gray-400">
+              <div key={i} className="mb-4 p-4 border rounded-lg hover:bg-slate-50 transition-colors">
+                <h3 className="font-bold text-lg mb-2">{idea.title}</h3>
+                <div className="flex gap-4 text-sm text-gray-600">
                   <span>📊 {(idea.predictedEngagement * 100).toFixed(1)}% predicted</span>
                   <span>🎯 {(idea.confidence * 100).toFixed(0)}% confidence</span>
                 </div>
@@ -424,13 +415,13 @@ function DashboardContent() {
 
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
   return (
-    <Card className="bg-white/5 border-white/10">
+    <Card>
       <CardContent className="pt-6">
         <div className="flex items-center gap-3">
           {icon}
           <div>
-            <p className="text-sm text-gray-400">{label}</p>
-            <p className="text-2xl font-bold text-white">{value}</p>
+            <p className="text-sm text-gray-600">{label}</p>
+            <p className="text-2xl font-bold">{value}</p>
           </div>
         </div>
       </CardContent>
@@ -440,17 +431,16 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
 
 function DashboardSkeleton() {
   return (
-    <div className="min-h-[calc(100vh-6rem)] pt-24
-bg-black p-6">
+    <div className="min-h-screen bg-slate-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <Skeleton className="h-10 w-64 mb-8 bg-white/10" />
+        <Skeleton className="h-10 w-64 mb-8" />
         <div className="grid md:grid-cols-4 gap-6 mb-8">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-32 bg-white/10" />
+            <Skeleton key={i} className="h-32" />
           ))}
         </div>
-        <Skeleton className="h-64 mb-8 bg-white/10" />
-        <Skeleton className="h-96 bg-white/10" />
+        <Skeleton className="h-64 mb-8" />
+        <Skeleton className="h-96" />
       </div>
     </div>
   );
