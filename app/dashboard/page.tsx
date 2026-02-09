@@ -393,7 +393,7 @@ function DashboardContent() {
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <Card className="bg-zinc-900 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all">
+          <Card className="bg-zinc-900 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all lg:row-span-2">
             <CardHeader>
               <CardTitle className="text-white">Engagement Timeline</CardTitle>
             </CardHeader>
@@ -421,33 +421,27 @@ function DashboardContent() {
 </Link>
             </CardContent>
           </Card>
-        </div>
 
-        {/* Brand Collaboration Card */}
-        <Card className="mb-8 bg-zinc-900 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all">
-  <CardContent className="p-6">
-    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-      <div className="flex items-center gap-4">
-        <div className="flex-shrink-0">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-zinc-800 rounded-lg">
-            <Briefcase className="h-6 w-6 text-white" />
-          </div>
-        </div>
-        <div>
-          <h3 className="text-xl font-bold text-white mb-1">Brand Collaboration Signals</h3>
-          <p className="text-gray-400 text-sm">
-            Discover sponsorship opportunities based on your content style and audience.
-          </p>
-        </div>
-      </div>
-      <Link href="/brand-collaboration">
+          {/* Brand Collaboration Card */}
+          <Card className="bg-zinc-900 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all">
+            <CardContent className="p-6 h-full flex flex-col justify-between">
+              <div>
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-zinc-800 rounded-lg mb-4">
+                  <Briefcase className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Brand Collaboration Signals</h3>
+                <p className="text-gray-400 text-sm">
+                  Discover sponsorship opportunities based on your content style and audience.
+                </p>
+              </div>
+              <Link href="/brand-collaboration">
   <GlareButton className="w-full">
     View Opportunities
   </GlareButton>
 </Link>
-    </div>
-  </CardContent>
-</Card>
+            </CardContent>
+          </Card>
+        </div>
         {/* Insights and Ideas Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="bg-zinc-900 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all">

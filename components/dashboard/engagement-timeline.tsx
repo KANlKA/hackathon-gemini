@@ -23,6 +23,8 @@ interface MonthlyData {
   engagement: number;
   videos: number;
   totalViews: number;
+  totalLikes: number;
+  totalComments: number;
   bestVideo: {
     title: string;
     engagement: number;
@@ -96,11 +98,17 @@ export function EngagementTimeline() {
         engagement: d.engagement,
         label: formatDay(d.date),
         date: d.date,
+        views: d.totalViews,
+        likes: d.totalLikes,
+        comments: d.totalComments,
       }))
     : (currentData as MonthlyData[]).map((d) => ({
         engagement: d.engagement,
         label: formatMonth(d.month),
         month: d.month,
+        views: d.totalViews,
+        likes: d.totalLikes,
+        comments: d.totalComments,
       }));
 
   if (loading) {
@@ -203,13 +211,40 @@ function TooltipContent({ active, payload, selectedMonth, dailyData, monthlyData
   const data = payload[0].payload;
 
   return (
-    <div className="bg-black border border-white/20 rounded-lg p-3 text-white shadow-xl">
-      <p className="text-sm text-gray-400 mb-1">
+    <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 text-white shadow-xl min-w-[200px]">
+      <p className="text-sm text-gray-400 mb-3 font-semibold">
         {data.label}
       </p>
-      <p className="text-lg font-semibold">
-        {data.engagement.toFixed(2)}%
-      </p>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-gray-400">Engagement:</span>
+          <span className="text-sm font-bold text-white">
+            {data.engagement.toFixed(2)}%
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-gray-400">Views:</span>
+          <span className="text-sm font-semibold text-white">
+            {data.views?.toLocaleString() || 0}
+          </span>
+        </div>
+        {data.likes !== undefined && (
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-gray-400">Likes:</span>
+            <span className="text-sm font-semibold text-white">
+              {data.likes?.toLocaleString() || 0}
+            </span>
+          </div>
+        )}
+        {data.comments !== undefined && (
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-gray-400">Comments:</span>
+            <span className="text-sm font-semibold text-white">
+              {data.comments?.toLocaleString() || 0}
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

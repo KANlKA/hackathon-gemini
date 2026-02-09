@@ -67,6 +67,8 @@ export async function GET(request: NextRequest) {
         engagement: number[];
         videos: number;
         totalViews: number;
+        totalLikes: number;
+        totalComments: number;
         bestVideo: { title: string; engagement: number; videoId: string } | null;
       }
     >();
@@ -85,6 +87,8 @@ export async function GET(request: NextRequest) {
           engagement: [],
           videos: 0,
           totalViews: 0,
+          totalLikes: 0,
+          totalComments: 0,
           bestVideo: null,
         });
       }
@@ -93,6 +97,8 @@ export async function GET(request: NextRequest) {
       monthData.engagement.push(video.engagementRate * 100);
       monthData.videos++;
       monthData.totalViews += video.views;
+      monthData.totalLikes += video.likes;
+      monthData.totalComments += video.commentCount;
 
       // Track best video
       if (
@@ -134,6 +140,8 @@ export async function GET(request: NextRequest) {
           engagement: Number(avgEngagement.toFixed(2)),
           videos: data.videos,
           totalViews: data.totalViews,
+          totalLikes: data.totalLikes,
+          totalComments: data.totalComments,
           bestVideo: data.bestVideo,
         };
       })
