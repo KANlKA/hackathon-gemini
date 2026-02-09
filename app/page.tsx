@@ -6,7 +6,7 @@ import React from "react";
 import { GoogleGeminiEffect } from "@/components/ui/google-gemini-effect";
 import { HeroSection } from "@/components/ui/hero-section";
 import { TestimonialsSection } from "@/components/ui/testimonials-with-marquee";
-import { ContactUs } from "@/components/ui/contact-us";
+
 import { AnimatedFeatures } from "@/components/ui/animated-features";
 
 export default function HomePage() {
@@ -121,15 +121,7 @@ export default function HomePage() {
             />
           </div>
 
-          <div className="mt-32 mb-16 max-w-6xl mx-auto">
-            <ContactUs />
-          </div>
-
-          <footer className="py-8 mt-20 border-t border-white/10 max-w-6xl mx-auto">
-            <div className="text-center text-gray-400">
-              <p>&copy; 2025 CreatorMind. Built for creators, by creators.</p>
-            </div>
-          </footer>
+          
         </div>
       </main>
     </div>
