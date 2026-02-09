@@ -9,9 +9,10 @@ import { generateIdeaGeoRecommendation } from "@/lib/content/idea-geo-recommenda
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, TrendingUp, Sparkles } from "lucide-react";
+import { ArrowLeft, TrendingUp, Sparkles, Check, Bookmark, X } from "lucide-react";
 import GlareButton from "@/components/ui/GlareButton";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function IdeaDetailPage() {
   const params = useParams();
@@ -19,6 +20,7 @@ export default function IdeaDetailPage() {
   const { status } = useSession();
   const [idea, setIdea] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
 
   const ideaIndex = parseInt(params.id as string);
 
@@ -31,7 +33,7 @@ export default function IdeaDetailPage() {
   useEffect(() => {
     const fetchIdea = async () => {
       try {
-        const res = await fetch("/api/ideas");
+        const res = await fetch("/api/ideas?limit=100"); // Fetch all ideas
         const data = await res.json();
 
         if (data.ideas && data.ideas[ideaIndex]) {
@@ -49,6 +51,36 @@ export default function IdeaDetailPage() {
       fetchIdea();
     }
   }, [status, ideaIndex]);
+
+  const handleStatusUpdate = async (newStatus: string) => {
+    try {
+      setUpdating(true);
+      const res = await fetch("/api/ideas/status", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ideaIndex, status: newStatus }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setIdea({ ...idea, status: newStatus });
+        const statusMessages: Record<string, string> = {
+          marked_as_video: "Idea marked as video!",
+          saved_for_later: "Idea saved for later!",
+          dismissed: "Idea dismissed!",
+        };
+        toast.success(statusMessages[newStatus] || "Status updated!");
+      } else {
+        toast.error(data.error || "Failed to update status");
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to update status");
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   if (loading) {
     return <IdeaDetailSkeleton />;
@@ -295,15 +327,44 @@ export default function IdeaDetailPage() {
 
             {/* Actions */}
             <div className="flex gap-3 flex-wrap">
-              <GlareButton className="flex-1 text-center">
-                Mark as "Made This Video"
-              </GlareButton>
+              <Button
+                onClick={() => handleStatusUpdate("marked_as_video")}
+                disabled={updating || idea.status === "marked_as_video"}
+                className={`flex-1 text-center ${
+                  idea.status === "marked_as_video"
+                    ? "bg-green-600 hover:bg-green-700"
+                    : "bg-zinc-800 hover:bg-zinc-700"
+                } text-white border border-zinc-700`}
+              >
+                <Check className="mr-2 h-4 w-4" />
+                {idea.status === "marked_as_video" ? "Video Made ✓" : "Mark as Video"}
+              </Button>
 
-              <GlareButton className="flex-1 text-center">
-                Save for Later
-              </GlareButton>
+              <Button
+                onClick={() => handleStatusUpdate("saved_for_later")}
+                disabled={updating || idea.status === "saved_for_later"}
+                className={`w-[180px] text-center ${
+                  idea.status === "saved_for_later"
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : "bg-zinc-800 hover:bg-zinc-700"
+                } text-white border border-zinc-700`}
+              >
+                <Bookmark className="mr-2 h-4 w-4" />
+                {idea.status === "saved_for_later" ? "Saved ✓" : "Save for Later"}
+              </Button>
 
-              <GlareButton>Dismiss</GlareButton>
+              <Button
+                onClick={() => handleStatusUpdate("dismissed")}
+                disabled={updating || idea.status === "dismissed"}
+                className={`${
+                  idea.status === "dismissed"
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-zinc-800 hover:bg-zinc-700"
+                } text-white border border-zinc-700`}
+              >
+                <X className="mr-2 h-4 w-4" />
+                {idea.status === "dismissed" ? "Dismissed" : "Dismiss"}
+              </Button>
             </div>
           </div>
           {/* Geography Recommendation */}

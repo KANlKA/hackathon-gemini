@@ -15,6 +15,9 @@ import {
   ArrowRight,
   Zap,
   Target,
+  Check,
+  Bookmark,
+  List,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -25,6 +28,7 @@ export default function IdeasPage() {
   const [ideas, setIdeas] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [activeTab, setActiveTab] = useState<"all" | "marked_as_video" | "saved_for_later">("all");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -32,23 +36,48 @@ export default function IdeasPage() {
     }
   }, [status, router]);
 
-  useEffect(() => {
-    const fetchIdeas = async () => {
-      try {
-        const res = await fetch("/api/ideas");
-        const data = await res.json();
-        setIdeas(data);
-      } catch (error) {
-        console.error("Error fetching ideas:", error);
-        toast.error("Failed to load ideas");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchIdeas = async () => {
+    try {
+      setLoading(true);
+      // Add cache busting with timestamp
+      const res = await fetch(`/api/ideas?limit=100&t=${Date.now()}`);
+      const data = await res.json();
+      setIdeas(data);
+    } catch (error) {
+      console.error("Error fetching ideas:", error);
+      toast.error("Failed to load ideas");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (status === "authenticated") {
       fetchIdeas();
     }
+  }, [status]);
+
+  // Refetch when page becomes visible or focused (user navigates back)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && status === "authenticated") {
+        fetchIdeas();
+      }
+    };
+
+    const handleFocus = () => {
+      if (status === "authenticated") {
+        fetchIdeas();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+    };
   }, [status]);
 
   const handleGenerateNew = async () => {
@@ -232,11 +261,93 @@ export default function IdeasPage() {
           </div>
         </div>
 
+        {/* Tab Navigation */}
+        <div className="mb-8 flex gap-2 border-b border-zinc-800 pb-0">
+          <button
+            onClick={() => setActiveTab("all")}
+            className={`px-6 py-3 text-sm font-medium transition-all relative ${
+              activeTab === "all"
+                ? "text-white"
+                : "text-gray-400 hover:text-gray-300"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <List className="h-4 w-4" />
+              All Ideas
+              <Badge variant="outline" className="ml-1 bg-zinc-800 border-zinc-700">
+                {ideas.ideas.filter((i: any) => !i.status || i.status === "active").length}
+              </Badge>
+            </div>
+            {activeTab === "all" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"></div>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab("marked_as_video")}
+            className={`px-6 py-3 text-sm font-medium transition-all relative ${
+              activeTab === "marked_as_video"
+                ? "text-white"
+                : "text-gray-400 hover:text-gray-300"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Check className="h-4 w-4" />
+              Made Videos
+              <Badge variant="outline" className="ml-1 bg-zinc-800 border-zinc-700">
+                {ideas.ideas.filter((i: any) => i.status === "marked_as_video").length}
+              </Badge>
+            </div>
+            {activeTab === "marked_as_video" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"></div>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab("saved_for_later")}
+            className={`px-6 py-3 text-sm font-medium transition-all relative ${
+              activeTab === "saved_for_later"
+                ? "text-white"
+                : "text-gray-400 hover:text-gray-300"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Bookmark className="h-4 w-4" />
+              Saved for Later
+              <Badge variant="outline" className="ml-1 bg-zinc-800 border-zinc-700">
+                {ideas.ideas.filter((i: any) => i.status === "saved_for_later").length}
+              </Badge>
+            </div>
+            {activeTab === "saved_for_later" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"></div>
+            )}
+          </button>
+        </div>
+
         {/* Ideas Grid */}
         <div className="space-y-8">
-          {ideas.ideas.map((idea: any, index: number) => (
-            <IdeaCard key={index} idea={idea} index={index} />
-          ))}
+          {ideas.ideas
+            .map((idea: any, originalIndex: number) => ({ idea, originalIndex }))
+            .filter(({ idea }: any) => {
+              if (activeTab === "all") return !idea.status || idea.status === "active";
+              return idea.status === activeTab;
+            })
+            .map(({ idea, originalIndex }: any) => (
+              <IdeaCard key={originalIndex} idea={idea} index={originalIndex} />
+            ))}
+          {ideas.ideas.filter((idea: any) => {
+            if (activeTab === "all") return !idea.status || idea.status === "active";
+            return idea.status === activeTab;
+          }).length === 0 && (
+            <Card className="bg-zinc-900 border-zinc-800">
+              <CardContent className="py-12 text-center">
+                <p className="text-gray-400 text-lg">
+                  {activeTab === "marked_as_video" && "No videos made yet. Mark an idea when you create a video from it!"}
+                  {activeTab === "saved_for_later" && "No ideas saved yet. Save ideas you want to revisit later!"}
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>
@@ -250,14 +361,24 @@ function IdeaCard({ idea, index }: { idea: any; index: number }) {
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex flex-col gap-2">
-                <Badge
-                  variant="outline"
-                  className="w-fit text-gray-400 border-zinc-700 bg-transparent"
-                >
-                  Idea #{idea.rank}
+              <Badge
+                variant="outline"
+                className="w-fit text-gray-400 border-zinc-700 bg-transparent"
+              >
+                Idea #{idea.rank}
+              </Badge>
+              {idea.status === "marked_as_video" && (
+                <Badge className="bg-green-600 hover:bg-green-700 border-green-500">
+                  <Check className="h-3 w-3 mr-1" />
+                  Video Made
                 </Badge>
-              </div>
+              )}
+              {idea.status === "saved_for_later" && (
+                <Badge className="bg-blue-600 hover:bg-blue-700 border-blue-500">
+                  <Bookmark className="h-3 w-3 mr-1" />
+                  Saved
+                </Badge>
+              )}
             </div>
             <CardTitle className="text-3xl mb-2 leading-tight text-white hover:text-zinc-300 transition-colors">
               {idea.title}

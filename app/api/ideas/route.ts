@@ -5,6 +5,8 @@ import User from "@/models/User";
 import GeneratedIdea from "@/models/GeneratedIdea";
 import { generateVideoIdeas } from "@/lib/ai/idea-generator";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();

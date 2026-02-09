@@ -9,7 +9,12 @@
     "start": "next start",
     "lint": "next lint",
     "worker": "tsx workers/index.ts",
-    "worker:watch": "tsx watch workers/index.ts"
+    "worker:watch": "tsx watch workers/index.ts",
+    "check-env": "node scripts/check-env.js",
+    "predeploy": "npm run check-env"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [],
   "author": "",

@@ -28,6 +28,8 @@
         length: string;
         tone: string;
       };
+      status?: 'active' | 'marked_as_video' | 'saved_for_later' | 'dismissed';
+      statusUpdatedAt?: Date;
     }>;
     
     emailSentAt?: Date;
@@ -63,6 +65,8 @@
           length: String,
           tone: String,
         },
+        status: { type: String, enum: ['active', 'marked_as_video', 'saved_for_later', 'dismissed'], default: 'active' },
+        statusUpdatedAt: Date,
       }],
       
       emailSentAt: Date,
